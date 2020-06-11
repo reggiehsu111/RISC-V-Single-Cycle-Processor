@@ -13,7 +13,8 @@ module ALU(
     input         clk, rst_n, ALUSrc;
     input  [63:0] imm_gen_output, read_data_2, read_data_1;
     input   [3:0] ALU_control;
-    output [63:0] zero, ALU_result;
+    output zero;
+    output [63:0] ALU_result;
 
 
 
@@ -25,6 +26,7 @@ module ALU(
     parameter SUB = 4'b0110;
 
     assign mux_output = (ALUSrc)?imm_gen_output:read_data_2;
+    assign zero = (read_data_2-read_data_1==0);
 
     always @(*) begin
         case(ALU_control)
@@ -32,7 +34,7 @@ module ALU(
             OR:      ALU_result = read_data_1 | mux_output;
             ADD:     ALU_result = read_data_1 + mux_output;
             SUB:     ALU_result = read_data_1 - mux_output;
-            default: ALU_result = read_data_1 + mux_output;
+            default: ALU_result = 0;
         endcase
     end
 

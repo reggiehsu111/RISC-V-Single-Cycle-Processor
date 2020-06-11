@@ -43,11 +43,23 @@ module CHIP(clk,
     wire [31:0] Sum ; // Sum to calculate PC if jumped
     wire [31:0] Instruction; // Instruction fetched from text memory
     wire [31:0] Add1; // added value (PC or rd1), depending on JALR
-    wire AUIPC, JALR, JAL, Branch, MemRead, MemToReg, ALUOp, MemWrite, ALUSrc, RegWrite;
-    wire [63:0] ImmGen_out;
+    wire AUIPC, JALR, JAL, Branch, MemRead, MemToReg, ALUOp, MemWrite, ALUSrc, RegWrite, ALU_Zero;
+    wire [63:0] ImmGen_out, ALU_result;
+    wire [3:0] ALU_Ctrl_out;
+    wire m1, m2;
 
     assign Add1 = (JALR)?rs1_data:PC;
     assign Sum = Add1 + (ImmGen_out << 1);
+
+    // assign wires to data memory
+    assign mem_wen_D = (!MemRead && MemWrite); //write when condition is true, else read
+    assign mem_addr_D = ALU_result;
+    assign mem_wdata_D = rs2_data;
+
+    // where does the data to be stored in register come from?
+    assign m1 = (MemToReg)? mem_rdata_D:ALU_result; // from alu result or data memory
+    assign m2 = (AUIPC)? Sum:m1;
+    assign rd_data = (JAL || JALR)? PC+4:m2;
 
     //---------------------------------------//
     // Do not modify this part!!!            //
@@ -79,11 +91,32 @@ module CHIP(clk,
         .RegWrite(RegWrite),
         .ALUOp(ALUOp));
 
+    ALU_Ctrl alu_ctrl0(
+        .clk(clk), 
+        .rst_n(rst_n), 
+        .ALUOp(ALUOp), 
+        .inst_30(Instruction[30]), 
+        inst_14_12(Instruction[14:12]), 
+        .ALU_Ctrl_out(ALU_Ctrl_out));
+
     ImmGen immgen0(
         .clk(clk),
         .rst_n(rst_n),
         .inst(Instruction),
-        .imm(ImmGen_out))
+        .imm(ImmGen_out));
+
+    ALU alu0(
+    .clk(clk), 
+    .rst_n(rst_n), 
+    .ALUSrc(ALUSrc),
+    .read_data_1(rs1_data),
+    .imm_gen_output(ImmGen_out),
+    .read_data_2(rs2_data),
+    .ALU_control(ALU_Ctrl_out),
+    .zero(ALU_Zero), 
+    .ALU_result(ALU_result));
+
+
     // Combinational circuit
     always @(*) begin
         if (JAL || JALR || (Branch && ALU_Zero)) begin
