@@ -19,9 +19,11 @@ module ALU(
 
 
     wire [63:0] mux_output;
+    reg [63:0] ALU_result_w;
+    assign ALU_result = ALU_result_w;
     
     parameter AND = 4'b0000;
-    parameter OR  = 4'b0001:
+    parameter OR  = 4'b0001;
     parameter ADD = 4'b0010;
     parameter SUB = 4'b0110;
 
@@ -30,11 +32,11 @@ module ALU(
 
     always @(*) begin
         case(ALU_control)
-            AND:     ALU_result = read_data_1 & mux_output;
-            OR:      ALU_result = read_data_1 | mux_output;
-            ADD:     ALU_result = read_data_1 + mux_output;
-            SUB:     ALU_result = read_data_1 - mux_output;
-            default: ALU_result = 0;
+            AND:     ALU_result_w = read_data_1 & mux_output;
+            OR:      ALU_result_w = read_data_1 | mux_output;
+            ADD:     ALU_result_w = read_data_1 + mux_output;
+            SUB:     ALU_result_w = read_data_1 - mux_output;
+            default: ALU_result_w = 0;
         endcase
     end
 

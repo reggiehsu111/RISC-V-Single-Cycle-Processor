@@ -1,0 +1,96 @@
+ncverilog: 15.20-s039: (c) Copyright 1995-2017 Cadence Design Systems, Inc.
+TOOL:	ncverilog	15.20-s039: Started on Jun 11, 2020 at 22:24:48 CST
+ncverilog
+	Final_tb.v
+	+define+leaf
+	+access+r
+file: Final_tb.v
+	module worklib.ImmGen:v
+		errors: 0, warnings: 0
+	module worklib.Control:v
+		errors: 0, warnings: 0
+	module worklib.ALU_Ctrl:v
+		errors: 0, warnings: 0
+	module worklib.ALU:v
+		errors: 0, warnings: 0
+		Caching library 'worklib' ....... Done
+	Elaborating the design hierarchy:
+        .ALUOp(ALUOp));
+                   |
+ncelab: *W,CUVMPW (./CHIP.v,100|19): port sizes differ in port connection (1/2).
+        .ALUOp(ALUOp), 
+                   |
+ncelab: *W,CUVMPW (./CHIP.v,105|19): port sizes differ in port connection (1/2).
+    .read_data_1(rs1_data),
+                        |
+ncelab: *W,CUVMPW (./CHIP.v,120|24): port sizes differ in port connection (32/64).
+    .read_data_2(rs2_data),
+                        |
+ncelab: *W,CUVMPW (./CHIP.v,122|24): port sizes differ in port connection (32/64).
+	Building instance overlay tables: .................... Done
+	Generating native compiled code:
+		worklib.ALU:v <0x38ec74b5>
+			streams:   3, words:  2008
+		worklib.ALU_Ctrl:v <0x4bb52300>
+			streams:   1, words:   732
+		worklib.CHIP:v <0x5b1ebb60>
+			streams:  14, words:  3207
+		worklib.Control:v <0x76fb56b3>
+			streams:   1, words:  9550
+		worklib.Final_tb:v <0x04d87a56>
+			streams:   6, words: 11697
+		worklib.ImmGen:v <0x077bb52a>
+			streams:   1, words:  3088
+		worklib.memory:v <0x2cef6c96>
+			streams:   6, words:  3783
+		worklib.memory:v <0x315a60d1>
+			streams:   6, words:  3783
+		worklib.memory:v <0x486f70c7>
+			streams:   6, words: 16807
+		worklib.multDiv:v <0x53ed85bf>
+			streams:  11, words:  6772
+		worklib.reg_file:v <0x34c1d96e>
+			streams:  10, words: 12873
+	Building instance specific data structures.
+	Loading native compiled code:     .................... Done
+	Design hierarchy summary:
+		                  Instances  Unique
+		Modules:                 11       9
+		Resolved nets:            0       1
+		Registers:               53      43
+		Scalar wires:            25       -
+		Expanded wires:          98       4
+		Vectored wires:          26       -
+		Always blocks:           28      20
+		Initial blocks:           2       2
+		Cont. assignments:       16      34
+		Pseudo assignments:       2       2
+		Simulation timescale:  10ps
+	Writing initial simulation snapshot: worklib.multDiv:v
+Loading snapshot worklib.multDiv:v .................... Done
+*Verdi* Loading libsscore_ius152.so
+ncsim> source /usr/cad/cadence/INCISIV/cur/tools/inca/files/ncsimrc
+ncsim> run
+FSDB Dumper for IUS, Release Verdi_N-2017.12, Linux, 11/12/2017
+(C) 1996 - 2017 by Synopsys, Inc.
+*Verdi* : Create FSDB file 'Final.fsdb'
+*Verdi* : Begin traversing the scope (Final_tb), layer (0).
+*Verdi* : Enable +mda dumping.
+*Verdi* : End of traversing.
+------------------------------------------------------------
+
+START!!! Simulation Start .....
+
+------------------------------------------------------------
+
+============================================================
+
+Simulation time is longer than expected.
+The test result is .....FAIL :(
+
+============================================================
+
+Simulation complete via $finish(1) at time 10 US + 0
+./Final_tb.v:146         $finish;
+ncsim> exit
+TOOL:	ncverilog	15.20-s039: Exiting on Jun 11, 2020 at 22:24:49 CST  (total: 00:00:01)

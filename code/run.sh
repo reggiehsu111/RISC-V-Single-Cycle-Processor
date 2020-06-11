@@ -1,1 +1,1 @@
-ncverilog +access+r Final_tb.v CHIP.v memory.v
+ncverilog Final_tb.v +define+leaf +access+r

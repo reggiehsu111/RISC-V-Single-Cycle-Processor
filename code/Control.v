@@ -1,11 +1,11 @@
-module Control(clk, rst_n, inst, AUIPC, JALR, JAL, Branch, MemRead, MemToReg, MemWrite, ALUSrc, RegWrite, AlUOp);
+module Control(clk, rst_n, inst, AUIPC, JALR, JAL, Branch, MemRead, MemToReg, MemWrite, ALUSrc, RegWrite, ALUOp);
     input clk, rst_n;
     input [6:0] inst;
     output AUIPC, JALR, JAL, Branch, MemRead, MemToReg, MemWrite, ALUSrc, RegWrite;
     output [1:0] ALUOp;
 
     reg AUIPC_w, JALR_w, JAL_w, Branch_w, MemRead_w, MemToReg_w, MemWrite_w, ALUSrc_w, RegWrite_w;
-    reg [1:0] AlUOp_w;
+    reg [1:0] ALUOp_w;
 
     assign AUIPC = AUIPC_w;
     assign JALR = JALR_w;
@@ -172,6 +172,7 @@ module ALU_Ctrl(clk, rst_n, ALUOp, inst_30, inst_14_12, ALU_Ctrl_out);
                 else begin
                     ALU_Ctrl_out_w = 4'b0010;
                 end
+            end
             default: begin
                 ALU_Ctrl_out_w = 0;
             end

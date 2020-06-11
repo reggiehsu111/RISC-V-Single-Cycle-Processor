@@ -1,0 +1,19 @@
+s1(11Jun2020:21:48:03):  ncverilog +access+r Final_tb.v CHIP.v memory.v Control.v alu.v ImmGen.v +define+leaf 
+s2(11Jun2020:21:51:50):  ncverilog +access+r Final_tb.v CHIP.v memory.v Control.v alu.v ImmGen.v +define+leaf 
+s3(11Jun2020:21:52:36):  ncverilog +access+r Final_tb.v CHIP.v memory.v Control.v alu.v ImmGen.v +define+leaf 
+s4(11Jun2020:21:53:12):  ncverilog +access+r Final_tb.v CHIP.v memory.v Control.v alu.v ImmGen.v +define+leaf 
+s5(11Jun2020:21:54:55):  ncverilog +access+r Final_tb.v memory.v Control.v alu.v ImmGen.v CHIP.v +define+leaf 
+s6(11Jun2020:21:57:29):  ncverilog +access+r Final_tb.v memory.v Control.v alu.v ImmGen.v CHIP.v +define+leaf 
+s7(11Jun2020:21:58:08):  ncverilog +access+r Final_tb.v memory.v Control.v alu.v ImmGen.v CHIP.v +define+leaf 
+s8(11Jun2020:22:00:35):  ncverilog +access+r Final_tb.v memory.v Control.v alu.v ImmGen.v CHIP.v +define+leaf 
+s9(11Jun2020:22:01:26):  ncverilog +access+r Final_tb.v memory.v Control.v alu.v ImmGen.v CHIP.v +define+leaf 
+s10(11Jun2020:22:03:31):  ncverilog +access+r Final_tb.v memory.v Control.v alu.v ImmGen.v CHIP.v +define+leaf 
+s11(11Jun2020:22:04:34):  ncverilog +access+r Final_tb.v memory.v Control.v alu.v ImmGen.v CHIP.v +define+leaf 
+s12(11Jun2020:22:05:23):  ncverilog +access+r Final_tb.v memory.v Control.v alu.v ImmGen.v CHIP.v +define+leaf 
+s13(11Jun2020:22:07:27):  ncverilog +access+r Final_tb.v memory.v Control.v alu.v ImmGen.v CHIP.v +define+leaf 
+s14(11Jun2020:22:09:18):  ncverilog +access+r Final_tb.v memory.v Control.v alu.v ImmGen.v CHIP.v +define+leaf 
+s15(11Jun2020:22:15:13):  ncverilog +access+r Final_tb.v memory.v Control.v alu.v ImmGen.v CHIP.v +define+leaf 
+s16(11Jun2020:22:16:40):  ncverilog +access+r Final_tb.v memory.v Control.v alu.v ImmGen.v CHIP.v +define+leaf 
+s17(11Jun2020:22:18:06):  ncverilog +access+r Final_tb.v memory.v Control.v alu.v ImmGen.v CHIP.v +define+leaf 
+s18(11Jun2020:22:18:54):  ncverilog +access+r Final_tb.v memory.v Control.v alu.v ImmGen.v CHIP.v +define+leaf 
+s19(11Jun2020:22:24:48):  ncverilog Final_tb.v +define+leaf +access+r 
