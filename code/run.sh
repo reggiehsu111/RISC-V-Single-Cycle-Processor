@@ -1,0 +1,1 @@
+ncverilog +access+r Final_tb.v CHIP.v memory.v

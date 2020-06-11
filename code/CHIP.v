@@ -36,17 +36,18 @@ module CHIP(clk,
     assign rs1 = Instruction[19:15];
     assign rs2 = Instruction[24:20];
     assign rd = Instruction[11:7];
-    assign imm_gen = {32{Instruction[31]}, Instruction};
     
     // Todo: other wire/reg
-    reg jump;  // to determine whether PC should jump
-    reg [31:0] Sum ; // Sum to calculate PC if jumped
-    reg [31:0] Instruction; // Instruction fetched from text memory
-
     // wires
-    // Control wires
-    wire [6:0] Control;
-    wire [63:0] imm_gen;
+    wire jump;  // to determine whether PC should jump
+    wire [31:0] Sum ; // Sum to calculate PC if jumped
+    wire [31:0] Instruction; // Instruction fetched from text memory
+    wire [31:0] Add1; // added value (PC or rd1), depending on JALR
+    wire AUIPC, JALR, JAL, Branch, MemRead, MemToReg, ALUOp, MemWrite, ALUSrc, RegWrite;
+    wire [63:0] ImmGen_out;
+
+    assign Add1 = (JALR)?rs1_data:PC;
+    assign Sum = Add1 + (ImmGen_out << 1);
 
     //---------------------------------------//
     // Do not modify this part!!!            //
@@ -63,10 +64,29 @@ module CHIP(clk,
     //---------------------------------------//
     
     // Todo: any combinational/sequential circuit(
+    Control control0(
+        .clk(clk),
+        .rst_n(rst_n),
+        .inst(Instruction[6:0]),
+        .AUIPC(AUIPC),
+        .JALR(JALR),
+        .JAL(JAL),
+        .Branch(Branch),
+        .MemRead(MemRead),
+        .MemToReg(MemToReg),
+        .MemWrite(MemWrite),
+        .ALUSrc(ALUSrc),
+        .RegWrite(RegWrite),
+        .ALUOp(ALUOp));
 
+    ImmGen immgen0(
+        .clk(clk),
+        .rst_n(rst_n),
+        .inst(Instruction),
+        .imm(ImmGen_out))
     // Combinational circuit
     always @(*) begin
-        if jump begin
+        if (JAL || JALR || (Branch && ALU_Zero)) begin
             PC_nxt = Sum;
         end
         else begin
@@ -78,7 +98,6 @@ module CHIP(clk,
     always @(*) begin
         mem_addr_I = PC;
         Instruction = mem_rdata_I;
-        Control= Instruction[6:0];
 
     end
 
