@@ -43,7 +43,8 @@ module CHIP(clk,
     wire [31:0] Sum ; // Sum to calculate PC if jumped
     wire [31:0] Instruction; // Instruction fetched from text memory
     wire [31:0] Add1; // added value (PC or rd1), depending on JALR
-    wire AUIPC, JALR, JAL, Branch, MemRead, MemToReg, ALUOp, MemWrite, ALUSrc, RegWrite, ALU_Zero;
+    wire AUIPC, JALR, JAL, Branch, MemRead, MemToReg, MemWrite, ALUSrc, RegWrite, ALU_Zero;
+    wire [1:0] ALUOp;
     wire [31:0] ImmGen_out, ALU_result;
     wire [3:0] ALU_Ctrl_out;
     wire [31:0] m1, m2;
@@ -55,7 +56,7 @@ module CHIP(clk,
     assign rd = Instruction[11:7];
 
     assign Add1 = (JALR)?rs1_data:PC;
-    assign Sum = Add1 + (ImmGen_out << 1);
+    assign Sum = (JALR||JAL)?Add1 + ImmGen_out:Add1 + (ImmGen_out << 1);
 
     // fetch
     assign mem_addr_I = PC;
@@ -360,6 +361,10 @@ module ImmGen(clk, rst_n, inst, imm);
                 begin
                     imm_w = { {20{inst[31]}}, inst[31:20] };
                 end
+            7'b0010011: 
+                begin // addi slti
+                    imm_w = { {20{inst[31]}}, inst[31:20] };
+                end
             
             // S
             7'b0100011: // sw
@@ -382,7 +387,7 @@ module ImmGen(clk, rst_n, inst, imm);
             // UJ
             7'b1101111: // jal
                 begin
-                    imm_w = { inst[19:12], inst[20], inst[30:21], 1'b0 };
+                    imm_w = { {12{inst[31]}}, inst[19:12], inst[20], inst[30:21], 1'b0 };
                 end
 
             default:
@@ -588,7 +593,7 @@ module ALU(
 );
 
     input         clk, rst_n, ALUSrc;
-    input  [63:0] imm_gen_output;
+    input  [31:0] imm_gen_output;
     input  [31:0] read_data_2, read_data_1;
     input   [3:0] ALU_control;
     output zero;
