@@ -44,9 +44,11 @@ module CHIP(clk,
     wire [31:0] Instruction; // Instruction fetched from text memory
     wire [31:0] Add1; // added value (PC or rd1), depending on JALR
     wire AUIPC, JALR, JAL, Branch, MemRead, MemToReg, ALUOp, MemWrite, ALUSrc, RegWrite, ALU_Zero;
-    wire [63:0] ImmGen_out, ALU_result;
+    wire [31:0] ImmGen_out, ALU_result;
     wire [3:0] ALU_Ctrl_out;
-    wire m1, m2;
+    wire [31:0] m1, m2;
+
+    assign regWrite = RegWrite;
 
     assign rs1 = Instruction[19:15];
     assign rs2 = Instruction[24:20];
@@ -346,9 +348,9 @@ endmodule
 module ImmGen(clk, rst_n, inst, imm);
     input         clk, rst_n;
     input  [31:0] inst;
-    output [63:0] imm;
+    output [31:0] imm;
 
-    reg [63:0] imm_w;
+    reg [31:0] imm_w;
     assign imm = imm_w;
 
     always @(*) begin
@@ -356,31 +358,31 @@ module ImmGen(clk, rst_n, inst, imm);
             // I
             7'b1100111: // jalr
                 begin
-                    imm_w = { {52{inst[31]}}, inst[31:20] };
+                    imm_w = { {20{inst[31]}}, inst[31:20] };
                 end
             
             // S
             7'b0100011: // sw
                 begin
-                    imm_w = { {52{inst[31]}}, inst[31:25], inst[11:7] };
+                    imm_w = { {20{inst[31]}}, inst[31:25], inst[11:7] };
                 end
             
             // SB
             7'b1100011: // beq
                 begin
-                    imm_w = { {53{inst[31]}}, inst[7], inst[30:25], inst[11:8] };
+                    imm_w = { {21{inst[31]}}, inst[7], inst[30:25], inst[11:8] };
                 end
 
             // U
             7'b0010111: // auipc
                 begin
-                    imm_w = { {32{inst[31]}}, inst[31:12], 12'b0 };
+                    imm_w = { inst[31:12], 12'b0 };
                 end
 
             // UJ
             7'b1101111: // jal
                 begin
-                    imm_w = { {32{inst[31]}}, inst[19:12], inst[20], inst[30:21], 1'b0 };
+                    imm_w = { inst[19:12], inst[20], inst[30:21], 1'b0 };
                 end
 
             default:
@@ -586,15 +588,16 @@ module ALU(
 );
 
     input         clk, rst_n, ALUSrc;
-    input  [63:0] imm_gen_output, read_data_2, read_data_1;
+    input  [63:0] imm_gen_output;
+    input  [31:0] read_data_2, read_data_1;
     input   [3:0] ALU_control;
     output zero;
-    output [63:0] ALU_result;
+    output [31:0] ALU_result;
 
 
 
-    wire [63:0] mux_output;
-    reg [63:0] ALU_result_w;
+    wire [31:0] mux_output;
+    reg [31:0] ALU_result_w;
     assign ALU_result = ALU_result_w;
     
     parameter AND = 4'b0000;

@@ -1,4 +1,5 @@
 // Behavior memory model with address mapping
+// Author: Chun-Yen Yao
 
 module memory #(
         parameter BITS = 32,
@@ -30,7 +31,7 @@ module memory #(
     integer i;
 
     always @(*) begin
-        q = {(BITS-1){1'bz}};
+        q = {(BITS){1'bz}};
         for (i=0; i<word_depth; i=i+1) begin
             if (mem_addr[i] == a)
                 q = mem[i];
