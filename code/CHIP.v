@@ -176,7 +176,7 @@ module CHIP(clk,
     end
 
     assign multDiv_valid = MULT_mode;
-    assign multDiv_mode = 0;
+    assign multDiv_mode = Instruction[14]? 1 : 0;
     assign multDiv_in_A = rs1_data;
     assign multDiv_in_B = rs2_data;
 

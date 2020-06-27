@@ -7,9 +7,9 @@
 
 `include "CHIP.v"
 `include "memory.v"
-`define SIZE_TEXT 32  // You can change the size
-`define SIZE_DATA 32  // You can change the size
-`define SIZE_STACK 32 // You can change the size
+`define SIZE_TEXT 48  // You can change the size
+`define SIZE_DATA 48  // You can change the size
+`define SIZE_STACK 48 // You can change the size
 
 `ifdef leaf
     `define MEM_TEXT "./leaf/leaf_text.txt"
