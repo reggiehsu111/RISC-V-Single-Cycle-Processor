@@ -47,7 +47,7 @@ module CHIP(clk,
     wire [1:0] ALUOp;
     wire [31:0] ImmGen_out, ALU_result;
     wire [3:0] ALU_Ctrl_out;
-    wire [31:0] m1, m2;
+    wire [31:0] m1, m2, m3, m4;
     // wires for multDiv
     wire multDiv_valid, multDiv_ready, multDiv_mode;
     wire [31:0] multDiv_in_A, multDiv_in_B;
@@ -76,7 +76,9 @@ module CHIP(clk,
     // where does the data to be stored in register come from?
     assign m1 = (MemToReg)? mem_rdata_D:ALU_result; // from alu result or data memory
     assign m2 = (AUIPC)? Sum:m1;
-    assign rd_data = (JAL || JALR)? PC+4:m2;
+    assign m3 = (ALUOp == 2'b10 && Instruction[13])? ALU_result[31]==1 : m2; // slti
+    assign m4 = (multDiv_ready)? multDiv_result : m3; // mul
+    assign rd_data = (JAL || JALR)? PC+4:m4;
 
     //---------------------------------------//
     // Do not modify this part!!!            //
@@ -97,6 +99,8 @@ module CHIP(clk,
         .clk(clk),
         .rst_n(rst_n),
         .inst(Instruction[6:0]),
+        .MULT_mode_nxt(MULT_mode_nxt),
+        .multDiv_ready(multDiv_ready),
         .AUIPC(AUIPC),
         .JALR(JALR),
         .JAL(JAL),
@@ -114,6 +118,7 @@ module CHIP(clk,
         .ALUOp(ALUOp), 
         .inst_30(Instruction[30]), 
         .inst_25(Instruction[25]),
+        .inst_5(Instruction[5]),
         .inst_14_12(Instruction[14:12]), 
         .ALU_Ctrl_out(ALU_Ctrl_out));
 
@@ -148,7 +153,7 @@ module CHIP(clk,
 
     // Combinational circuit
     always @(*) begin
-        if (!Mult_mode) begin
+        if (!MULT_mode_nxt) begin
             if (JAL || JALR || (Branch && ALU_Zero)) begin
                 PC_nxt_w = Sum;
             end
@@ -162,11 +167,18 @@ module CHIP(clk,
     end
 
     always @(*) begin
-        //TODO: MULT_mode_nxt = ?
-        if (ALU_Ctrl_out[3] && !) begin
-            MULT_mode_nxt = ?
+        if (ALU_Ctrl_out[3] && !multDiv_ready) begin
+            MULT_mode_nxt = 1;
+        end
+        else begin
+            MULT_mode_nxt = 0;
         end
     end
+
+    assign multDiv_valid = MULT_mode;
+    assign multDiv_mode = 0;
+    assign multDiv_in_A = rs1_data;
+    assign multDiv_in_B = rs2_data;
 
     // Sequential circuit
     always @(posedge clk or negedge rst_n) begin
@@ -388,6 +400,10 @@ module ImmGen(clk, rst_n, inst, imm);
     always @(*) begin
         case(inst[6:0])
             // I
+            7'b0000011: // lw
+                begin
+                    imm_w = { {20{inst[31]}}, inst[31:20] };
+                end
             7'b1100111: // jalr
                 begin
                     imm_w = { {20{inst[31]}}, inst[31:20] };
@@ -429,8 +445,8 @@ module ImmGen(clk, rst_n, inst, imm);
     end
 endmodule
 
-module Control(clk, rst_n, inst, AUIPC, JALR, JAL, Branch, MemRead, MemToReg, MemWrite, ALUSrc, RegWrite, ALUOp);
-    input clk, rst_n;
+module Control(clk, rst_n, inst, MULT_mode_nxt, multDiv_ready, AUIPC, JALR, JAL, Branch, MemRead, MemToReg, MemWrite, ALUSrc, RegWrite, ALUOp);
+    input clk, rst_n, MULT_mode_nxt, multDiv_ready;
     input [6:0] inst;
     output AUIPC, JALR, JAL, Branch, MemRead, MemToReg, MemWrite, ALUSrc, RegWrite;
     output [1:0] ALUOp;
@@ -451,11 +467,16 @@ module Control(clk, rst_n, inst, AUIPC, JALR, JAL, Branch, MemRead, MemToReg, Me
 
     always @(*) begin
         case(inst)
-            // R add, sub
+            // R add, sub mul
             7'b0110011: begin
                 ALUSrc_w = 0;
                 MemToReg_w = 0;
-                RegWrite_w = 1;
+                if (MULT_mode_nxt && !multDiv_ready) begin
+                    RegWrite_w = 0;
+                end
+                else begin
+                    RegWrite_w = 1;
+                end
                 MemRead_w = 0;
                 MemWrite_w = 0;
                 Branch_w = 0;
@@ -576,10 +597,10 @@ module Control(clk, rst_n, inst, AUIPC, JALR, JAL, Branch, MemRead, MemToReg, Me
 
 endmodule
 
-module ALU_Ctrl(clk, rst_n, ALUOp, inst_30, inst_25, inst_14_12, ALU_Ctrl_out);
+module ALU_Ctrl(clk, rst_n, ALUOp, inst_30, inst_25, inst_5, inst_14_12, ALU_Ctrl_out);
     input clk, rst_n;
     input [1:0] ALUOp;
-    input inst_30, inst_25;
+    input inst_30, inst_25, inst_5;
     input [2:0] inst_14_12; 
     output [3:0] ALU_Ctrl_out;
 
@@ -596,12 +617,12 @@ module ALU_Ctrl(clk, rst_n, ALUOp, inst_30, inst_25, inst_14_12, ALU_Ctrl_out);
                 ALU_Ctrl_out_w = 4'b0110;
             end
             2'b10: begin
-                if (inst_14_12[1] || inst_30) begin
+                if (inst_14_12[1] || (inst_30 && inst_5)) begin
                     // subtract
                     ALU_Ctrl_out_w = 4'b0110;
                 end
                 else begin
-                    if (inst_25) begin
+                    if (inst_25 && inst_5) begin
                         // mult
                         ALU_Ctrl_out_w = 4'b1000;
                     end
@@ -649,7 +670,7 @@ module ALU(
     parameter SUB = 4'b0110;
 
     assign mux_output = (ALUSrc)?imm_gen_output:read_data_2;
-    assign zero = (read_data_2-read_data_1==0);
+    assign zero = (ALU_result_w==0);
 
     always @(*) begin
         case(ALU_control)
